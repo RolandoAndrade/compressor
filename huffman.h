@@ -27,9 +27,11 @@ Node * createNode(char character)
 
 void add(Node **letters, char character)
 {
-	Node *p = *letters;
-	while(p&&p->next)
+	Node *p = *letters, *q;
+	q = NULL;
+	while(p)
 	{
+		q = p;
 		if(p->character==character)
 		{
 			(p->frecuency)++;
@@ -37,22 +39,15 @@ void add(Node **letters, char character)
 		}
 		p = p->next;
 	}
-	if(p)
+	if(q)
 	{
-		if(p->character==character)
-		{
-			(p->frecuency)++;
-		}
-		else
-		{
-			p->next = createNode(character);
-		}
+		q->next = createNode(character);
 	}
 	else
 	{
 		*letters = createNode(character); 
 	}
-
+	
 }
 
 int size(Node * letters)
@@ -88,7 +83,60 @@ void sort(Node **letters)
 	}
 }
 
+Node * insertNode(Node ** priorityQueue, Node * node)
+{
+	if(!(*priorityQueue))
+	{
+		*priorityQueue = node;
+		(*priorityQueue)->next = NULL;
+	}
+	else
+	{
+		Node *p = *priorityQueue, *q;
+		q = NULL;
+		while(p && p->frecuency < node->frecuency)
+		{
+			q = p;
+			p=p->next;
+		}
+		node->next = p;
+		if(q)
+		{
+			q->next = node;
+		}
+		else
+		{
+			*priorityQueue = node;
+		}
+	}
+}
+
 Node * huffmanTree(Node * letters)
 {
+	while(letters&&letters->next)
+	{
+		Node *p = createNode('$');
+		p->left = letters;
+		p->right = letters->next;
+		p->frecuency = p->left->frecuency + p->right->frecuency;
+		letters=letters->next->next;
+		insertNode(&letters,p);
+	}
+	return letters;
+}
 
+void print(Node * letters)
+{
+	if(letters)
+	{
+		if(letters->left)
+		{
+			print(letters->left);
+			print(letters->right);
+		}
+		else
+		{
+			printf("%c/%lu; ", letters->character,letters->frecuency);
+		}
+	}
 }
