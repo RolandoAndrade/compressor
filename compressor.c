@@ -11,17 +11,16 @@ int main(int argc, char const *argv[])
     int i = 0;
     while((c=fgetc(fileIn))!=EOF)
     {
-    	printf("%c", c);
     	add(&letters, c);
     }
-
+    sort(&letters);
     while(letters)
     {
-    	printf("%c ", letters->character);
+    	printf("%c->%lu ", letters->character, letters->frecuency);
     	letters=letters->next;
     }
-	printf("Hola\n");
-	printf("Chao\n");
+	
+	printf("Chaito\n");
 	/* code */
 	return 0;
 }

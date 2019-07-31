@@ -7,6 +7,13 @@ struct Node
 	struct Node *left, *right, *next;
 };
 
+void swap(unsigned long *a, unsigned long *b)
+{
+	int aux = *a;
+	*a = *b;
+	*b = aux;
+}
+
 Node * createNode(char character)
 {
 	Node * p = (Node*)malloc(sizeof(Node));
@@ -48,25 +55,40 @@ void add(Node **letters, char character)
 
 }
 
-void sort(Node *letters, int size)
+int size(Node * letters)
 {
-	Node *p = letters;
-	while(p->next->next)
+	int i = 0;
+	while(letters)
 	{
-		Node *q = p->next;
-		Node *min = p;
-		while(q->next)
+		i++;
+		letters=letters->next;
+	}
+	return i;
+}
+
+void sort(Node **letters)
+{
+	Node *p = *letters, *q, *min;
+	while(p&&p->next)
+	{
+		q = p->next;
+		min = p;
+		while(q)
 		{
-			if(q->frecuency<min->frecuency)
+			if(q->frecuency< min->frecuency)
 			{
-				*min = *q;
+				min = q;
 			}
+			q = q->next;
 		}
 
+		swap(&(p->frecuency), &(min->frecuency));
+		swap(&(p->character), &(min->character));
+		p = p->next;
 	}
 }
 
-Node * huffmanTree(char letters[], unsigned long frecuency[])
+Node * huffmanTree(Node * letters)
 {
 
 }
