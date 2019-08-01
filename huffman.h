@@ -1,10 +1,19 @@
 typedef struct Node Node;
+typedef struct Table Table;
 
 struct Node
 {
 	char character;
 	unsigned long frecuency;
 	struct Node *left, *right, *next;
+};
+
+struct Table
+{
+	char character;
+	unsigned long bits;
+	unsigned short size;
+	struct Table *next; 
 };
 
 void swap(unsigned long *a, unsigned long *b)
@@ -21,6 +30,16 @@ Node * createNode(char character)
 	p->frecuency = 1;
 	p->left = NULL;
 	p->right = NULL;
+	p->next = NULL;
+	return p;
+}
+
+Table * createRecord(char character, int size, int bits)
+{
+	Table * p = (Table*)malloc(sizeof(Table));
+	p->character = character;
+	p->bits = bits;
+	p->size = size;
 	p->next = NULL;
 	return p;
 }
@@ -125,18 +144,65 @@ Node * huffmanTree(Node * letters)
 	return letters;
 }
 
-void print(Node * letters)
+void printOut(Node * letters)
 {
 	if(letters)
 	{
 		if(letters->left)
 		{
-			print(letters->left);
-			print(letters->right);
+			printOut(letters->left);
+			printOut(letters->right);
 		}
 		else
 		{
 			printf("%c/%lu; ", letters->character,letters->frecuency);
 		}
+	}
+}
+
+void insertRecord(Table ** table, char character, int size, int bits)
+{
+	Table *p = createRecord(character, size, bits);
+	if(!(*table))
+	{
+		*table = p;
+	}
+	else
+	{
+		Table *q = *table;
+		while(q->next)
+		{
+			q = q->next;
+		}
+
+		q->next = p;
+	}
+}
+
+void createTable(Node * tree, Table ** table, int size, int bits)
+{
+	if(tree)
+	{
+		if(tree->left)
+		{
+			createTable(tree->left, table, size + 1, bits<<1); //X*2
+		}
+		if(tree->right)
+		{
+			createTable(tree->right, table, size + 1, bits<<1|1);//X*2+1
+		}
+		if(!(tree->left) && !(tree->right))
+		{
+			insertRecord(table, tree->character, size, bits);
+		}
+	}
+}
+
+void printTable(Table *table)
+{
+	while(table->next)
+	{
+		printf("%c->%i->%li\n", table->character, table->size, table->bits);
+		table = table->next;
 	}
 }

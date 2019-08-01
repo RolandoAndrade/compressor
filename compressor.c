@@ -19,7 +19,11 @@ int main(int argc, char const *argv[])
     printf("F3\n");
     letters = huffmanTree(letters);
     printf("F4\n");
-    print(letters);
+    printOut(letters);
+    printf("F5\n");
+    Table * table = NULL;
+    createTable(letters, &table, 0, 0);
+    printTable(table);
 	printf("Chaito\n");
 	/* code */
 	return 0;
