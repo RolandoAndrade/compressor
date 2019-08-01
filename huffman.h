@@ -183,7 +183,7 @@ void printOut(Node * letters)
 	}
 }
 
-void insertRecord(Table ** table, char character, int size, int bits)
+void insertRecord(Table ** table, char character, char size, unsigned long bits)
 {
 	Table *p = createRecord(character, size, bits);
 	if(!(*table))
@@ -202,7 +202,7 @@ void insertRecord(Table ** table, char character, int size, int bits)
 	}
 }
 
-void createTable(Node * tree, Table ** table, int size, int bits)
+void createTable(Node * tree, Table ** table, char size, unsigned long bits)
 {
 	if(tree)
 	{
@@ -262,4 +262,54 @@ Table * find(char character, Table * table)
 		table = table->next;
 	}
 	return NULL;
+}
+
+
+void bitTree(Node ** node, char character, unsigned char size, unsigned long bits)
+{
+	if(!size)
+	{
+		if(*node)
+		{
+			(*node)->character = character;
+			(*node)->frecuency = bits;
+		}
+		else
+		{
+			*node = createNode(character);
+			(*node)->frecuency = bits;
+		}
+	}
+	else
+	{
+		unsigned long mask = 1 << (size-1);
+		if(!(*node))
+		{
+			*node = createNode('$');
+		}
+		if(mask & bits)
+		{
+			if(!((*node)->right))
+			{
+				(*node)->right = createNode('$');
+			}
+			bitTree(&(*node)->right, character, size-1, bits);
+		}
+		else
+		{
+			if(!((*node)->left))
+			{
+				(*node)->left = createNode('$');
+			}
+			bitTree(&(*node)->left, character, size-1, bits);
+		}
+	}
+}
+
+char decode(Node * tree, int size, unsigned long bits)
+{
+	if(!size&&(tree->left)||(tree->right))
+	{
+		return -1;
+	}
 }

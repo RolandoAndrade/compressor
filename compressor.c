@@ -35,9 +35,28 @@ void zip(Table * table, FILE ** in, FILE ** out)
     }
 }
 
-void unzip()
+void unzip(FILE ** in, FILE ** out)
 {
-	
+	char s;
+	fread(&s, 1, 1, *in);
+	printf("descomprimiendo...\n");
+	if(s>0)
+	{
+		char character;
+		unsigned char size;
+		unsigned long bits;
+		Node * letters = NULL;
+		while(s--)
+		{
+			fread(&character, 1, 1, *in);
+			fread(&size, 1, 1, *in);
+			fread(&bits, sizeof(unsigned long), 1, *in);
+			bitTree(&letters, character, size, bits);
+		}
+		printOut(letters);
+		printf("\n");
+		
+	}
 }
 
 
@@ -54,8 +73,11 @@ int main(int argc, char const *argv[])
     writeTable(&fileOut, table);
     fileIn = fopen("input.txt", "r");
     zip(table, &fileIn, &fileOut);
-
-
+    fclose(fileIn);
+    fclose(fileOut);
+    fileIn = fopen("output.txt", "r");
+    fileOut = fopen("unzip.txt", "wb");
+    unzip(&fileIn,&fileOut);
 	/* code */
 	return 0;
 }
