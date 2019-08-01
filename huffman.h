@@ -144,6 +144,18 @@ Node * huffmanTree(Node * letters)
 	return letters;
 }
 
+Node * buildTree(FILE ** file)
+{
+	Node * node = NULL;
+	char c;
+	while((c=fgetc(*file))!=EOF)
+    {
+    	add(&node, c);
+    }
+    sort(&node);
+    return huffmanTree(node);
+}
+
 void printOut(Node * letters)
 {
 	if(letters)
@@ -189,13 +201,20 @@ void createTable(Node * tree, Table ** table, int size, int bits)
 		}
 		if(tree->right)
 		{
-			createTable(tree->right, table, size + 1, bits<<1|1);//X*2+1
+			createTable(tree->right, table, size + 1, bits<<1|1);//X*2+1 
 		}
 		if(!(tree->left) && !(tree->right))
 		{
 			insertRecord(table, tree->character, size, bits);
 		}
 	}
+}
+
+Table * buildTable(Node * tree)
+{
+	Table * table = NULL;
+    createTable(tree, &table, 0, 0);
+    return table;
 }
 
 void printTable(Table *table)
@@ -205,4 +224,28 @@ void printTable(Table *table)
 		printf("%c->%i->%li\n", table->character, table->size, table->bits);
 		table = table->next;
 	}
+}
+
+void writeTable(FILE ** file, Table * table)
+{
+	while(table)
+	{
+		fwrite(&table->character, sizeof(char), 1, *file);
+		fwrite(&table->size, sizeof(unsigned short), 1, *file);
+		fwrite(&table->bits, sizeof(unsigned long), 1, *file);
+		table = table->next;
+	}
+}
+
+Table * find(char character, Table * table)
+{
+	while(table)
+	{
+		if(character==table->character)
+		{
+			return table;
+		}
+		table = table->next;
+	}
+	return NULL;
 }
