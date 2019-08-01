@@ -12,7 +12,7 @@ struct Table
 {
 	char character;
 	unsigned long bits;
-	unsigned short size;
+	unsigned char size;
 	struct Table *next; 
 };
 
@@ -76,6 +76,17 @@ int size(Node * letters)
 	{
 		i++;
 		letters=letters->next;
+	}
+	return i;
+}
+
+int sizeT(Table * table)
+{
+	int i = 0;
+	while(table)
+	{
+		i++;
+		table=table->next;
 	}
 	return i;
 }
@@ -226,12 +237,15 @@ void printTable(Table *table)
 	}
 }
 
+
 void writeTable(FILE ** file, Table * table)
 {
+	char s = sizeT(table);
+	fwrite(&s, sizeof(char), 1, *file);
 	while(table)
 	{
 		fwrite(&table->character, sizeof(char), 1, *file);
-		fwrite(&table->size, sizeof(unsigned short), 1, *file);
+		fwrite(&table->size, sizeof(unsigned char), 1, *file);
 		fwrite(&table->bits, sizeof(unsigned long), 1, *file);
 		table = table->next;
 	}

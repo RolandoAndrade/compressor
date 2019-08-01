@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "huffman.h"
 
-int zip(Table * table, FILE ** in, FILE ** out)
+void zip(Table * table, FILE ** in, FILE ** out)
 {
 	char c;
 	unsigned long data;
@@ -33,6 +33,11 @@ int zip(Table * table, FILE ** in, FILE ** out)
     	fwrite(&c, sizeof(char), 1, *out);
       	size -= 8;
     }
+}
+
+void unzip()
+{
+	
 }
 
 
