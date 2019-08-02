@@ -70,6 +70,17 @@ void unzip(char * inputFileName, char * outputFileName)
 char * clean(char * in)
 {
 	int l = strlen(in)-1;
+	char * ext = ".rol";
+	int ll = strlen(ext)-1;
+	for(int i = 0;i<4;i++)
+	{
+		if(in[l-i]!=ext[ll-i])
+		{
+			return NULL;
+		}
+		in[l-i]=0;
+	}
+	return in;
 }
 
 int main(int argc, char const *argv[])
@@ -90,6 +101,7 @@ int main(int argc, char const *argv[])
 			out = malloc(strlen(in)+4);
 			strcpy(out, in);
 			strcat(out, ".rol"); 
+			clean(in);
 			zip(in, out);
 		}
 		else if(!strcmp(argv[1],"unzip"))
@@ -97,8 +109,13 @@ int main(int argc, char const *argv[])
 			printf("Desomprimiendo...\n");
 			out = malloc(strlen(in));
 			strcpy(out, in);
-			unzip(in, out);
+			out = clean(out);
+			if(out)
+			{
+				unzip(in, out);
+			}
 		}
+		printf("Listo.\n");
 	}
 
 	return 0;
