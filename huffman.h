@@ -349,3 +349,36 @@ int decode(Node * tree, char *size, unsigned long *bits, FILE ** in, FILE ** out
 	}
 	return 0;
 }
+
+void code(Table * table, FILE ** in, FILE ** out)
+{
+	char c;
+	unsigned long data = 0;
+	int size = 0;
+	while((c=fgetc(*in))!=EOF)
+    {
+    	Table *t = find(c, table);
+    	while((t->size + size) > 32)
+    	{
+    		c = data >> (size-8);
+    		fwrite(&c, sizeof(char), 1, *out);
+    		size -= 8 ;
+    	}
+    	data <<= t->size;
+    	data |= t->bits;
+    	size += t->size;
+    }
+    while(size>0)
+    {
+    	if(size>=8)
+    	{
+    		c = data >> (size-8);
+    	}
+    	else
+    	{
+    		 c = data << (8-size);
+    	}
+    	fwrite(&c, sizeof(char), 1, *out);
+      	size -= 8;
+    }
+}

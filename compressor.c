@@ -1,39 +1,23 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "huffman.h"
 
-void zip(Table * table, FILE ** in, FILE ** out)
+
+void zip(char * inputFileName, char * outputFileName)
 {
-	char c;
-	unsigned long data = 0;
-	int size = 0;
-	while((c=fgetc(*in))!=EOF)
-    {
-    	Table *t = find(c, table);
-    	while((t->size + size) > 32)
-    	{
-    		c = data >> (size-8);
-    		fwrite(&c, sizeof(char), 1, *out);
-    		size -= 8 ;
-    	}
-    	data <<= t->size;
-    	data |= t->bits;
-    	size += t->size;
-    }
-    while(size>0)
-    {
-    	if(size>=8)
-    	{
-    		c = data >> (size-8);
-    	}
-    	else
-    	{
-    		 c = data << (8-size);
-    	}
-    	fwrite(&c, sizeof(char), 1, *out);
-      	size -= 8;
-    }
+	FILE * fileIn, *fileOut;
+    fileIn = fopen(inputFileName, "r");
+    fileOut = fopen(outputFileName, "wb");
+    Node *letters = buildTree(&fileIn);
+    Table * table = buildTable(letters);
+    writeTable(&fileOut, table, letters->frecuency);
+    fileIn = fopen(inputFileName, "r");
+    code(table, &fileIn, &fileOut);
+    fclose(fileIn);
+    fclose(fileOut);
 }
+
 
 unsigned long readWord(FILE ** in)
 {
@@ -50,13 +34,15 @@ unsigned long readWord(FILE ** in)
 	return (maskA)+(maskB)+(maskC)+maskD;
 }
 
-void unzip(FILE ** in, FILE ** out)
+void unzip(char * inputFileName, char * outputFileName)
 {
+	FILE * fileIn, *fileOut;
+	fileIn = fopen(inputFileName, "r");
+    fileOut = fopen(outputFileName, "wb");
 	char s;
 	unsigned long len;
-	fread(&s, 1, 1, *in);
-	fread(&len, sizeof(unsigned long), 1, *in);
-	printf("descomprimiendo...\n");
+	fread(&s, 1, 1, fileIn);
+	fread(&len, sizeof(unsigned long), 1, fileIn);
 	if(s>0)
 	{
 		char character;
@@ -65,43 +51,55 @@ void unzip(FILE ** in, FILE ** out)
 		Node * letters = NULL;
 		while(s--)
 		{
-			fread(&character, 1, 1, *in);
-			fread(&size, 1, 1, *in);
-			fread(&bits, sizeof(unsigned long), 1, *in);
+			fread(&character, 1, 1, fileIn);
+			fread(&size, 1, 1, fileIn);
+			fread(&bits, sizeof(unsigned long), 1, fileIn);
 			bitTree(&letters, character, size, bits);
 		}
-		bits = readWord(in);
-		printOut(letters);
-		printf("\n");
-		printBinary(bits,0);
+		bits = readWord(&fileIn);
 		size = 8;
-		printf("\n");
 		while(len-->0)
 		{
-			decode(letters,&size,&bits,in,out);
+			decode(letters,&size,&bits,&fileIn,&fileOut);
 		}
 	}
+	fclose(fileIn);
+    fclose(fileOut);
 }
 
+char * clean(char * in)
+{
+	int l = strlen(in)-1;
+}
 
 int main(int argc, char const *argv[])
 {
-	FILE * fileIn, *fileOut;
-    fileIn = fopen("input.txt", "r");
-    fileOut = fopen("output.txt", "wb");
-    char c;
-    Node *letters = buildTree(&fileIn);
-    printOut(letters);
-    Table * table = buildTable(letters);
-    printTable(table);
-    writeTable(&fileOut, table, letters->frecuency);
-    fileIn = fopen("input.txt", "r");
-    zip(table, &fileIn, &fileOut);
-    fclose(fileIn);
-    fclose(fileOut);
-    fileIn = fopen("output.txt", "r");
-    fileOut = fopen("unzip.txt", "wb");
-    unzip(&fileIn,&fileOut);
-	/* code */
+	if(argc<3)
+	{
+		printf("\nPor favor introduzca alguno de los siguientes parametros\n");
+		printf("\tzip <file>: comprime el archivo\n");
+		printf("\tunzip <file>: descomprime el archivo\n\n");
+	}
+	else
+	{
+		char * in = argv[2];
+		char* out; 
+		if(!strcmp(argv[1],"zip"))
+		{
+			printf("Comprimiendo...\n");
+			out = malloc(strlen(in)+4);
+			strcpy(out, in);
+			strcat(out, ".rol"); 
+			zip(in, out);
+		}
+		else if(!strcmp(argv[1],"unzip"))
+		{
+			printf("Desomprimiendo...\n");
+			out = malloc(strlen(in));
+			strcpy(out, in);
+			unzip(in, out);
+		}
+	}
+
 	return 0;
 }
