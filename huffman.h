@@ -34,7 +34,7 @@ Node * createNode(char character)
 	return p;
 }
 
-Table * createRecord(char character, int size, int bits)
+Table * createRecord(char character, char size, unsigned long bits)
 {
 	Table * p = (Table*)malloc(sizeof(Table));
 	p->character = character;
@@ -110,6 +110,15 @@ void sort(Node **letters)
 		swap(&(p->frecuency), &(min->frecuency));
 		swap(&(p->character), &(min->character));
 		p = p->next;
+	}
+}
+
+void printBinary(unsigned long num, int it)
+{
+	if(it<32)
+	{
+		printBinary(num/2, it+1);
+		printf("%i", num%2!=0);
 	}
 }
 
@@ -232,7 +241,9 @@ void printTable(Table *table)
 {
 	while(table->next)
 	{
-		printf("%c->%i->%li\n", table->character, table->size, table->bits);
+		printf("%c = ", table->character);
+		printBinary(table->bits,32-table->size);
+		printf("\n");
 		table = table->next;
 	}
 }
@@ -305,16 +316,10 @@ void bitTree(Node ** node, char character, unsigned char size, unsigned long bit
 		}
 	}
 }
-void printBinary(unsigned long num, int it)
-{
-	if(it<32)
-	{
-		printBinary(num/2, it+1);
-		printf("%i", num%2!=0);
-	}
-}
+
 int decode(Node * tree, char *size, unsigned long *bits, FILE ** in, FILE ** out)
 {
+
 	if(!(tree->left)&&!(tree->right))
 	{
 		fwrite(&tree->character, sizeof(char), 1, *out);
