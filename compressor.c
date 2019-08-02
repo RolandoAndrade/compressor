@@ -35,6 +35,21 @@ void zip(Table * table, FILE ** in, FILE ** out)
     }
 }
 
+unsigned long readWord(FILE ** in)
+{
+	unsigned long bits = 0;
+	fread(&bits, sizeof(unsigned long), 1, *in);
+	unsigned long maskA = bits&0x000000FFUL;
+	unsigned long maskB = bits&0x0000FF00UL;
+	unsigned long maskC = bits&0x00FF0000UL;
+	unsigned long maskD = bits&0xFF000000UL;
+	maskA<<=24;
+	maskB<<=8;
+	maskC>>=8;
+	maskD>>=24;
+	return (maskA)+(maskB)+(maskC)+maskD;
+}
+
 void unzip(FILE ** in, FILE ** out)
 {
 	char s;
@@ -53,8 +68,16 @@ void unzip(FILE ** in, FILE ** out)
 			fread(&bits, sizeof(unsigned long), 1, *in);
 			bitTree(&letters, character, size, bits);
 		}
+		bits = readWord(in);
 		printOut(letters);
 		printf("\n");
+		decode(letters,8,&bits,in,out);
+		//121, 20, 56, 151
+		//01111001 00010100 00111000 10010111        01100110
+		//11110011
+		//1111001000101000011100010010111
+		//1111001000101000011100010010111
+		//10010111 00111000 00010100 01111001
 		
 	}
 }
