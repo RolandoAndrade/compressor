@@ -305,35 +305,40 @@ void bitTree(Node ** node, char character, unsigned char size, unsigned long bit
 		}
 	}
 }
-
-int decode(Node * tree, int size, unsigned long *bits, FILE ** in, FILE ** out)
+void printBinary(unsigned long num, int it)
 {
-	if(!size)
+	if(it<32)
 	{
-		char bi;
-		fread(&bi, 1, 1, *in);
-		size = 8;
-		(*bits)|=bi;
+		printBinary(num/2, it+1);
+		printf("%i", num%2!=0);
 	}
+}
+int decode(Node * tree, char *size, unsigned long *bits, FILE ** in, FILE ** out)
+{
 	if(!(tree->left)&&!(tree->right))
 	{
 		fwrite(&tree->character, sizeof(char), 1, *out);
-		return 1;
 	}
 	else
 	{
 		unsigned long mask = 2147483648;
 		int b = (*bits)&mask;
-		printf("%i\n", !(b==0));
 		(*bits)<<=1;
-
+		*size = *size -1;
+		if(!(*size))
+		{
+			unsigned char bi;
+			fread(&bi, 1, 1, *in);
+			(*bits)|=bi;
+			*size = 8;
+		}
 		if(b)
 		{
-			decode(tree->right, size - 1, bits, in, out);
+			decode(tree->right, size, bits, in, out);
 		}
 		else
 		{
-			decode(tree->left, size - 1, bits, in, out);
+			decode(tree->left, size, bits, in, out);
 		}
 	}
 	return 0;

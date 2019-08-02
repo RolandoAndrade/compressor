@@ -5,15 +5,18 @@
 void zip(Table * table, FILE ** in, FILE ** out)
 {
 	char c;
-	unsigned long data;
-	short size = 0;
+	unsigned long data = 0;
+	int size = 0;
+	short i = 0;
 	while((c=fgetc(*in))!=EOF)
     {
     	Table *t = find(c, table);
-    	while((size + table->size) > 32)
+    	while((table->size + size) > 31)
     	{
     		c = data >> (size-8);
+    		
     		fwrite(&c, sizeof(char), 1, *out);
+
     		size -= 8 ;
     	}
     	data <<= t->size;
@@ -71,7 +74,12 @@ void unzip(FILE ** in, FILE ** out)
 		bits = readWord(in);
 		printOut(letters);
 		printf("\n");
-		decode(letters,8,&bits,in,out);
+		printBinary(bits,0);
+		size = 8;
+		for(int i = 0;i<100;i++)
+		{
+			decode(letters,&size,&bits,in,out);
+		}
 		//121, 20, 56, 151
 		//01111001 00010100 00111000 10010111        01100110
 		//11110011
