@@ -249,10 +249,11 @@ void printTable(Table *table)
 }
 
 
-void writeTable(FILE ** file, Table * table)
+void writeTable(FILE ** file, Table * table, unsigned long size)
 {
 	char s = sizeT(table);
 	fwrite(&s, sizeof(char), 1, *file);
+	fwrite(&size, sizeof(unsigned long), 1, *file);
 	while(table)
 	{
 		fwrite(&table->character, sizeof(char), 1, *file);
