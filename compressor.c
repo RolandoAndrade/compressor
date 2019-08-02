@@ -4,10 +4,15 @@
 #include "huffman.h"
 
 
-void zip(char * inputFileName, char * outputFileName)
+int zip(char * inputFileName, char * outputFileName)
 {
 	FILE * fileIn, *fileOut;
     fileIn = fopen(inputFileName, "r");
+    if(!fileIn)
+    {
+    	printf("Error, archivo no encontrado\n");
+    	return -1;
+    }
     fileOut = fopen(outputFileName, "wb");
     Node *letters = buildTree(&fileIn);
     Table * table = buildTable(letters);
@@ -16,6 +21,7 @@ void zip(char * inputFileName, char * outputFileName)
     code(table, &fileIn, &fileOut);
     fclose(fileIn);
     fclose(fileOut);
+    return 0;
 }
 
 
@@ -34,10 +40,15 @@ unsigned long readWord(FILE ** in)
 	return (maskA)+(maskB)+(maskC)+maskD;
 }
 
-void unzip(char * inputFileName, char * outputFileName)
+int unzip(char * inputFileName, char * outputFileName)
 {
 	FILE * fileIn, *fileOut;
 	fileIn = fopen(inputFileName, "r");
+	if(!fileIn)
+    {
+    	printf("Error, archivo no encontrado\n");
+    	return -1;
+    }
     fileOut = fopen(outputFileName, "wb");
 	char s;
 	unsigned long len;
@@ -65,6 +76,7 @@ void unzip(char * inputFileName, char * outputFileName)
 	}
 	fclose(fileIn);
     fclose(fileOut);
+    return 0;
 }
 
 char * clean(char * in)
@@ -102,7 +114,10 @@ int main(int argc, char const *argv[])
 			strcpy(out, in);
 			strcat(out, ".rol"); 
 			clean(in);
-			zip(in, out);
+			if(zip(in, out))
+			{
+				return -1;
+			}
 		}
 		else if(!strcmp(argv[1],"unzip"))
 		{
@@ -112,7 +127,15 @@ int main(int argc, char const *argv[])
 			out = clean(out);
 			if(out)
 			{
-				unzip(in, out);
+				if(unzip(in, out))
+				{
+					return -1;
+				}
+			}
+			else
+			{
+				printf("Error, formato no reconocido\n");
+				return -2;
 			}
 		}
 		printf("Listo.\n");
